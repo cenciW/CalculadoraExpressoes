@@ -1,0 +1,334 @@
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
+
+using namespace std;
+
+struct Numeros{
+
+	string val_inser;
+	Numeros *prox;
+
+};
+
+struct FilaTurma{//Cabeçalho
+
+	Numeros *Inicio;//controlar o topo volta o tamanho da lista para mim = Tamanho vai ser igual a Topo + 1;
+	Numeros *Fim; //volta o tamanho;
+	int Tamanho;//começa de baixo para cima, alterando sempre o topo!
+			  
+};
+
+struct Pilhas{ //Cabeçalho
+
+
+	Numeros *Topo; //Com o controle do topo eu consigo calcular o tamanho
+	int Tamanho;
+
+};
+
+void Ini_Fila(FilaTurma *T){ //Cria uma lista vazia
+
+	T->Inicio = NULL;
+	T->Fim = NULL;
+	T->Tamanho = 0;
+}
+
+void Ini_Pilhas(Pilhas *T){ //Cria uma pilha vazia
+
+	T->Topo = NULL;
+	T->Tamanho = 0;
+
+}
+
+int Fila_Vazia(FilaTurma *T){ //Verifica se a lista está vazia (1 - Vazia, 0 - Tem mais de 1 elemento)
+	int Ret;
+
+	if (T->Tamanho == 0){
+		Ret = 1;
+	}
+	else{
+		Ret = 0;
+	}
+
+	return Ret;
+}
+
+Numeros* Cria_Elemento(string val_inser){
+	Numeros *Elemento;
+
+	Elemento = new Numeros;
+	Elemento->val_inser = val_inser;
+	Elemento->prox = NULL;
+
+	return Elemento;
+}
+
+void Enfileirar(FilaTurma *T, string val_inser){
+	Numeros *Elemento;
+
+	Elemento = Cria_Elemento (val_inser);
+
+	if (Elemento != NULL){ //Há espaço na fila
+		if (Fila_Vazia (T) == 1){
+			T->Inicio = Elemento;
+
+		}
+		else{
+			T->Fim->prox = Elemento;
+		}
+		T->Fim = Elemento;
+
+		T->Tamanho++;
+	}
+	else{
+		cout << "Não há mais espaço na fila!!!" << endl;
+	}
+}
+
+Numeros* Desenfilerar(FilaTurma *T){	 
+	Numeros *Prox;
+	Numeros *Retorno;
+
+
+
+	if (Fila_Vazia(T) == 0){ //Há alunos na Turma
+			Retorno = T->Inicio;
+
+		if (T->Tamanho == 1){
+			T->Inicio = NULL;
+			T->Fim = NULL;
+		}
+		else{
+			Prox = T->Inicio->prox;
+			T->Inicio = Prox;
+		}
+
+		T->Tamanho--;
+	}
+	else{
+		cout << "A pilha está vazia!!" << endl;
+	}
+	return Retorno;
+}
+
+void ImprimeRec_Fila(FilaTurma *T, Numeros *ProxAluno){
+
+	if (ProxAluno != NULL){
+		if (ProxAluno == T->Inicio){
+			system("cls");
+			cout<<"Fila:";
+		}
+
+		cout<<ProxAluno->val_inser<<" ";
+
+
+		ImprimeRec_Fila (T, ProxAluno->prox);
+
+	}
+	cout<<endl;
+}
+
+
+
+//PILHAS ABAIXO  -- FILAS A CIMA
+
+
+void Empilhar(Pilhas *T, string val_inser){
+	Numeros *Elemento;
+	Elemento = Cria_Elemento(val_inser);
+
+	if (Elemento != NULL){ //Há espaço na pilha
+		Elemento->prox = T->Topo;
+		T->Topo = Elemento;
+
+		T->Tamanho++; //Crio o novo topo
+
+	}else{
+		cout<<"Não há espaço na pilha!!!"<<endl;
+	}
+}
+
+
+int Pilha_Vazia(Pilhas *T){ //Verifica se a pilha números esta vazia (1 - Vazia, 0 - Tem mais de 1 elemento)
+	int Ret;
+
+
+	if (T->Tamanho == 0){
+		Ret = 1;
+	}
+	else{
+		Ret = 0;
+	}
+
+	return Ret;
+
+}
+
+Numeros *Desempilhar(Pilhas *T){
+	Numeros * ret;
+
+	if (Pilha_Vazia(T) == 0){ //Há valores na pilha
+		ret = T->Topo;
+		T->Topo = T->Topo->prox;
+		T->Tamanho--;
+
+
+		}else{
+			cout << "Pilha vazia!!!" << endl;
+	}
+
+	return ret;
+}
+
+void Imprime_Pilha_Rec(Pilhas *T, Numeros *prox){
+
+	if (prox != NULL){
+		cout<<prox->val_inser<<endl;
+		Imprime_Pilha_Rec(T, prox->prox);
+	}
+}
+
+int VerifiPreced(string sinal){
+	int ret;
+	Pilhas *O;
+
+
+	if(sinal == "+" || sinal == "-"){
+		ret = 2;
+	}else{
+		if(sinal == "*" || sinal == "/"){
+			ret = 3;
+		}else{
+			ret = 0;
+		}
+	}
+
+
+	return ret;
+
+}
+
+string Calcule(Pilhas *O, Pilhas *N){
+
+	float ret, X1F, X2F;
+	string Operador, retorno;
+
+	X1F = stof(Desempilhar(N)->val_inser); //Convertendo string->float
+
+	X2F = stof(Desempilhar(N)->val_inser);//Convertendo string->float
+
+	Operador = Desempilhar(O)->val_inser;
+
+	if(Operador == "*"){
+		retorno = to_string(X2F*X1F);//Convertendo float->string
+
+	}else{
+		if(Operador == "/"){
+			retorno = to_string(X2F/X1F);
+
+		}else{
+			if(Operador == "+"){
+				retorno = to_string(X2F+X1F);
+
+			}else{
+				if(Operador == "-"){
+					retorno = to_string(X2F-X1F);
+				}
+			}
+		}
+	}
+	
+	return retorno;
+
+}
+
+void DesenfileirarEmpilhando (Pilhas *O, Pilhas *N, FilaTurma *T){
+	Numeros *RetornoRecebido;
+	int Tam = T->Tamanho, Cont, Preced;
+	string X;
+
+	do{
+
+		RetornoRecebido = Desenfilerar(T);
+		
+		if(RetornoRecebido->val_inser == "+" ||RetornoRecebido->val_inser == "-" || RetornoRecebido->val_inser == "/" || RetornoRecebido->val_inser == "*"){
+			if(Pilha_Vazia(O) == 1){//PILHA VAZIA
+				Empilhar (O, RetornoRecebido->val_inser);
+				
+			}else{//SE PILHA NAO VAZIA
+				if(VerifiPreced(O->Topo->val_inser) >= VerifiPreced(RetornoRecebido->val_inser)){ //SE FOR SOMA OU SUBTR
+
+					X = Calcule(O,N);
+					Empilhar(N, X); //empilhando o retorno da fç calcular
+					Empilhar(O, RetornoRecebido->val_inser); //empilhando operador
+
+				}else{ //SENAO, MULTI OU DIV
+			
+					Empilhar(O, RetornoRecebido->val_inser); //empilhando operador
+				}
+			}
+		}else{
+			Empilhar(N, RetornoRecebido->val_inser); //empilhando numero
+		}
+
+	}while(T->Tamanho != 0);
+
+	do{
+		X = Calcule(O, N);
+		Empilhar(N, X);
+
+	}while(O->Tamanho !=0);
+
+ 	Imprime_Pilha_Rec(N, N->Topo);
+
+}
+
+FilaTurma T; //fila
+Pilhas O;//Operadores
+Pilhas N;//Numeros
+main (){
+	
+	setlocale (LC_ALL,"Portuguese");
+	char opc2;
+	string num;
+	int opc;
+
+	Ini_Fila(&T); //inicialização da fila
+	Ini_Pilhas(&O); //incialização da pilha operadores
+	Ini_Pilhas(&N);//incialização da pilha numeros
+
+	do{
+
+		cout<<"1-> Enfileirar a operação"<<endl;
+		cout<<"2-> Desenfileirar e resolver"<<endl;
+		cout<<"0-> Sair"<<endl;
+		cin>>opc;
+
+		switch (opc){
+
+			case 1:
+				do{
+					cout<<"Digite o valor para enfileirar:"<<endl;
+					cin>>num;
+					Enfileirar(&T, num);
+					system("cls");
+            		cout << "\nFILA: ";
+            		ImprimeRec_Fila(&T, T.Inicio);
+
+					cout<<"Deseja continuar enfileirando? (y -> sim / n -> não)"<<endl;
+					cout<< ":";
+					cin>> opc2;
+
+				}while(opc2 != 'n');
+
+				break;
+			case 2:
+				cout<<"O resultado da operação é: ";
+				DesenfileirarEmpilhando(&O, &N, &T);
+				system("pause");
+				break;
+		}
+	}while (opc != 0);
+	system("pause");
+}
