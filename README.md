@@ -1,2 +1,3 @@
 # projetos-Cplusplus
-Alguns projetos em C++ que desenvolvi na faculdade.
+Calculadora de expressões em C++.
+Funciona na estrutura de "pilha", como se fosse uma HP50g.
